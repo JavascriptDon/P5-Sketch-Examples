@@ -23,3 +23,7 @@ Paste the code into the [p5.js Web Editor](https://editor.p5js.org/) to see it i
 ## Preview
 
 ![CAD](https://github.com/user-attachments/assets/d202bb4c-f76d-45e4-b62a-2f09aa7ac728)
+
+## 📄 License
+
+MIT License – feel free to use and adapt!

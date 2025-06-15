@@ -18,6 +18,8 @@ Paste the code into the [p5.js Web Editor](https://editor.p5js.org/) to see it i
 
 ## Preview
 
+![Solar-Trails](https://github.com/user-attachments/assets/8f766577-13cc-4e1d-a6e1-ee21010cf677)
+
 ## Customization Ideas
 
 - Add Mars, Venus, or other planets

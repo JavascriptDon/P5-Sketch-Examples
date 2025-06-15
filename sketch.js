@@ -1,9 +1,13 @@
-let angle = 0;
+let angleOrbit = 0;
+let angleRotation = 0;
+let angleMoon = 0;
 let pointsEarth = [];
-let pointsC = [];
-let pointsA = [];
-let pointsD = [];
-let font;
+let earthRadius = 60;
+let orbitRadius = 150;
+let moonRadius = 20;
+let moonDistance = 40;
+let stars = [];
+let comets = [];
 
 function preload() {
   font = loadFont('https://cdnjs.cloudflare.com/ajax/libs/topcoat/0.8.0/font/SourceCodePro-Regular.otf');
@@ -12,11 +16,10 @@ function preload() {
 function setup() {
   createCanvas(600, 400);
   colorMode(HSL);
-  strokeWeight(2);
-  textSize(180);
   textFont(font);
+  strokeWeight(2);
 
-  // Generate Earth points (lat/lon grid)
+  // Earth point cloud
   let detail = 10;
   for (let lat = -90; lat <= 90; lat += detail) {
     for (let lon = -180; lon <= 180; lon += detail) {
@@ -31,51 +34,117 @@ function setup() {
     }
   }
 
-  // Generate points for "C", "A" and "D"
-  pointsC = font.textToPoints("C", 100, 250, 160, { sampleFactor: 0.5 });
-  pointsA = font.textToPoints("A", 255, 250, 160, { sampleFactor: 0.5 });
-  pointsD = font.textToPoints("D", 410, 250, 160, { sampleFactor: 0.5 });
+  // Stars
+  for (let i = 0; i < 200; i++) {
+    stars.push({
+      x: random(-width, width),
+      y: random(-height, height),
+      brightness: random(60, 100)
+    });
+  }
+
+  // Comets
+  for (let i = 0; i < 3; i++) {
+    comets.push(new Comet());
+  }
 }
 
 function draw() {
-  background(9, 40);
+  background(240, 10, 5); // dark space
   translate(width / 2, height / 2);
 
-  let radius = 150;
-  angle += 0.01;
-
-  // Draw Earth sphere points
-  strokeWeight(3);
-  for (let pt of pointsEarth) {
-    // Rotate sphere
-    let rotatedX = pt.x * cos(angle) + pt.z * sin(angle);
-    let rotatedZ = -pt.x * sin(angle) + pt.z * cos(angle);
-    let rotatedY = pt.y;
-
-    // Perspective projection
-    let distance = 0;
-    let zOffset = rotatedZ + distance;
-    let px = (rotatedX / zOffset) * radius;
-    let py = (rotatedY / zOffset) * radius;
-
-    // Rough land/ocean color
-    if (abs(pt.lat) > 60 || (pt.lon > -60 && pt.lon < 60 && pt.lat < 20)) {
-      stroke(210, 100, 60); // ocean blue
-    } else {
-      stroke(120, 70, 40); // land green
-    }
-
-    point(px, py);
+  // Draw stars
+  noStroke();
+  for (let star of stars) {
+    fill(0, 0, star.brightness);
+    ellipse(star.x, star.y, 1.5, 1.5);
   }
 
-  // Draw "C", "A" and "D" points in front with fluid motion
-  strokeWeight(1);
-  stroke(28,233,233);
+  // Draw Sun
+  fill(50, 100, 60);
+  noStroke();
+  ellipse(0, 0, 40, 40);
 
-  for (let pt of [...pointsC, ...pointsA, ...pointsD]) {
-    // Add a subtle oscillation for fluidity
-    let xWiggle = sin(frameCount * 0.1 + pt.y * 0.05) * 2;
-    let yWiggle = cos(frameCount * 0.1 + pt.x * 0.05) * 2;
-    point(pt.x - width / 2 + xWiggle, pt.y - height / 2 + yWiggle);
+  // Earth position
+  let earthX = cos(angleOrbit) * orbitRadius;
+  let earthY = sin(angleOrbit) * orbitRadius;
+
+  angleOrbit += 0.005;
+  angleRotation += 0.02;
+  angleMoon += 0.04;
+
+  // Draw Earth
+  strokeWeight(2);
+  for (let pt of pointsEarth) {
+    let rotatedX = pt.x * cos(angleRotation) + pt.z * sin(angleRotation);
+    let rotatedZ = -pt.x * sin(angleRotation) + pt.z * cos(angleRotation);
+    let rotatedY = pt.y;
+
+    let zOffset = rotatedZ + 2;
+    let px = (rotatedX / zOffset) * earthRadius;
+    let py = (rotatedY / zOffset) * earthRadius;
+
+    if (abs(pt.lat) > 60 || (pt.lon > -60 && pt.lon < 60 && pt.lat < 20)) {
+      stroke(210, 100, 60); // ocean
+    } else {
+      stroke(120, 70, 40); // land
+    }
+
+    point(earthX + px, earthY + py);
+  }
+
+  // Draw Moon
+  let moonX = earthX + cos(angleMoon) * moonDistance;
+  let moonY = earthY + sin(angleMoon) * moonDistance;
+
+  fill(0, 0, 90);
+  noStroke();
+  ellipse(moonX, moonY, moonRadius, moonRadius);
+
+  // Draw comets
+  for (let comet of comets) {
+    comet.update();
+    comet.display();
+  }
+}
+
+class Comet {
+  constructor() {
+    this.reset();
+  }
+
+  reset() {
+    this.x = random(-width, 0);
+    this.y = random(-height / 2, height / 2);
+    this.vx = random(2, 4);
+    this.vy = random(-0.5, 0.5);
+    this.history = [];
+    this.hue = random(0, 360);
+  }
+
+  update() {
+    this.history.push({ x: this.x, y: this.y });
+    if (this.history.length > 20) this.history.shift();
+
+    this.x += this.vx;
+    this.y += this.vy;
+
+    if (this.x > width || this.y < -height / 2 || this.y > height / 2) {
+      this.reset();
+    }
+  }
+
+  display() {
+    noFill();
+    for (let i = 0; i < this.history.length - 1; i++) {
+      let a = this.history[i];
+      let b = this.history[i + 1];
+      stroke(this.hue, 100, 70, map(i, 0, this.history.length - 1, 0.1, 1));
+      line(a.x - width / 2, a.y, b.x - width / 2, b.y);
+    }
+
+    fill(this.hue, 100, 80);
+    noStroke();
+    ellipse(this.x - width / 2, this.y, 5, 5);
   }
 }

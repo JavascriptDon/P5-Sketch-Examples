@@ -1,19 +1,15 @@
 
-## 3D Earth with CAD
+## Solar Trails
 
-This p5.js sketch renders a rotating 3D point-based Earth and overlays an animated "CAD" text in front of it. The result is a dynamic and visually appealing combination of geometry, typography, and animation.
+This p5.js sketch renders a dynamic, interactive solar system simulation.
 
 ## Features
 
-🌐 3D Earth made of latitude/longitude grid points
-
-🔄 Smooth globe rotation using perspective projection
-
-🧠 "CAD" text rendered from vector font points
-
-💫 Animated text with subtle motion for a fluid feel
-
-🎨 HSL color mode for ocean vs land styling
+☀️ Sun	(Static, glowing at the center of the canvas)
+🌍 Earth	(Point-based sphere orbiting the Sun while spinning on its axis)
+🌕 Moon	(Circles the Earth in a smaller orbit)
+🌠 Comets	(Diagonal, multicolored trails that shoot across the screen and respawn)
+🌌 Stars	(Randomly placed background stars with subtle brightness variation)
 
 
 ## 🚀 Live Demo
@@ -22,4 +18,13 @@ Paste the code into the [p5.js Web Editor](https://editor.p5js.org/) to see it i
 
 ## Preview
 
-![CAD](https://github.com/user-attachments/assets/d202bb4c-f76d-45e4-b62a-2f09aa7ac728)
+## Customization Ideas
+
+- Add Mars, Venus, or other planets
+- Use shaders or gradients for visual effects
+- Implement user controls (toggle trails, adjust orbit speed)
+- Add interactive click events for comets or stars
+
+## 📄 License
+
+MIT License – feel free to use and adapt!
